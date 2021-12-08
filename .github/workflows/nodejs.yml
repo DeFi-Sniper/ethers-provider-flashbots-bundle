@@ -10,20 +10,16 @@ jobs:
       
     steps:
       - uses: actions/checkout@v2
-      # Setup .npmrc file to publish to GitHub Packages
-      - uses: actions/setup-node@v2
+ 
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.5.0
         with:
-          node-version: '12.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@defi-sniper'
-          
+          node-version: 14
           
  
       - run: npm install
       - run: |
           npm i
           npm run build
-          echo "registry=https://npm.pkg.github.com/@defi-sniper" > .npmrc          
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }} >>.npmrc         
           npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
