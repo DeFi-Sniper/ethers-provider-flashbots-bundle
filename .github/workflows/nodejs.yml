@@ -1,26 +1,29 @@
-# GitHub Nodejs CI
-name: nodejs
-
-on: [push, pull_request]
-
+name: Node.js Package
+on:
+  workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: ['10.x', '12.x', '14.x']
-
+    runs-on: ubuntu-latest 
+    permissions: 
+      contents: read
+      packages: write 
+      
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      # Setup .npmrc file to publish to GitHub Packages
+      - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: npm install, build, and test
-        run: |
-          npm install codecov -g
-          npm install
+          node-version: '12.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@defi-sniper'
+          
+          
+ 
+      - run: npm install
+      - run: |
+          npm i
           npm run build
+          echo "registry=https://npm.pkg.github.com/@defi-sniper" > .npmrc          
+          npm publish --access public
         env:
-          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
